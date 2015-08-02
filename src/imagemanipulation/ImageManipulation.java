@@ -39,11 +39,11 @@ public class ImageManipulation {
             postImg = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
         } catch (IOException e) {
         }
-        kernel = generate1DGaussianKernel(0.84089642, 10);
+        kernel = generate1DGaussianKernel(3, 40);
         long startTime = System.currentTimeMillis();
         convolute1D(kernel);
         long endTime = System.currentTimeMillis();
-        double elapsedTime = (endTime - startTime) / 1000;
+        double elapsedTime = (endTime - startTime) / 1000.0;
         System.out.println("Elapsed time: " + elapsedTime);
         export();
     }
