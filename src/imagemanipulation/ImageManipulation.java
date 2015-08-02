@@ -56,6 +56,7 @@ public class ImageManipulation {
             int x = Math.abs(i - origin);
             kernel[i] = gaussian(x, stdDev);
         }
+        kernel = normalize(kernel);
         return kernel;
     }
     
@@ -68,9 +69,20 @@ public class ImageManipulation {
      * @param stdDev the Gaussian function's standard deviation
      * @return double value for the pixel's Gaussian kernel value
      */
-    private static double gaussian(int x, double stdDev) {
+    public static double gaussian(int x, double stdDev) {
         return (1 / (Math.sqrt(2 * Math.PI * Math.pow(stdDev, 2)))) * 
                 Math.pow(Math.E, -((Math.pow(x, 2)) / (2 * Math.pow(stdDev, 2))));
+    }
+    
+    public static double[] normalize(double[] kernel) {
+        double accum = 0;
+        for(int i = 0; i < kernel.length; i++) {
+            accum += kernel[i];
+        }
+        for(int i = 0; i < kernel.length; i++) {
+            kernel[i] = kernel[i] / accum;
+        }
+        return kernel;
     }
     
     /**
