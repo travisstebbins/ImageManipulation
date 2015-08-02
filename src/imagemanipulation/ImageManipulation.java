@@ -40,7 +40,11 @@ public class ImageManipulation {
         } catch (IOException e) {
         }
         kernel = generateGaussianKernel(0.84089642, 10);
+        long startTime = System.currentTimeMillis();
         convolute(kernel);
+        long endTime = System.currentTimeMillis();
+        double elapsedTime = (endTime - startTime) / 1000;
+        System.out.println("Elapsed time: " + elapsedTime);
         export();
     }
     
