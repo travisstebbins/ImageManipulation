@@ -39,7 +39,7 @@ public class ImageManipulation {
             postImg = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
         } catch (IOException e) {
         }
-        kernel = generate1DGaussianKernel(2);
+        kernel = generateGaussianKernel(2);
         long startTime = System.currentTimeMillis();
         convolute1D(kernel);
         long endTime = System.currentTimeMillis();
@@ -49,52 +49,30 @@ public class ImageManipulation {
     }
     
     /**
-     * Generates a 2D kernel array based on a given standard
-     * deviation and radius
-     * 
+     * Generates a 1D kernel array based on a given standard deviation
      * @param stdDev Gaussian function standard deviation
-     * @param radius the blur radius
-     * @return 2D kernel array
+     * @return 1D kernel array
      */
-    public static double[][] generateGaussianKernel(double stdDev, int radius) {
-        double[][] kernel = new double[(2 * radius) + 1][(2 * radius) + 1];
-        int origin = (int) (kernel.length / 2.0);
-        for(int i = 0; i < kernel.length; i++) {
-            for(int j = 0; j < kernel[0].length; j++) {
-                int x = Math.abs(i - origin);
-                int y = Math.abs(j - origin);
-                kernel[i][j] = gaussian(x, y, stdDev);
-            }
-        }
-        return kernel;
-    }
-    
-    public static double[] generate1DGaussianKernel(double stdDev) {
+    public static double[] generateGaussianKernel(double stdDev) {
         double[] kernel = new double[(int) Math.ceil(6 * stdDev)];
         int origin = (int) (kernel.length / 2.0);
         for(int i = 0; i < kernel.length; i++) {
             int x = Math.abs(i - origin);
-            kernel[i] = gaussian1D(x, stdDev);
+            kernel[i] = gaussian(x, stdDev);
         }
         return kernel;
     }
     
     /**
      * Calculates the Gaussian filter kernel value at a specific pixel
-     * based on the pixel's position and the Gaussian function's
-     * standard deviation
+     * based on the pixel's position and the Gaussian function's standard
+     * deviation
      * 
-     * @param x the pixel's horizontal position within the kernel
-     * @param y the pixel's vertical position within the kernel
+     * @param x the pixel's position within the kernel
      * @param stdDev the Gaussian function's standard deviation
      * @return double value for the pixel's Gaussian kernel value
      */
-    private static double gaussian(int x, int y, double stdDev) {
-        return (1 / (2 * Math.PI * Math.pow(stdDev, 2))) * 
-                Math.pow(Math.E, -((Math.pow(x, 2) + Math.pow(y, 2)) / (2 * Math.pow(stdDev, 2))));
-    }
-    
-    private static double gaussian1D(int x, double stdDev) {
+    private static double gaussian(int x, double stdDev) {
         return (1 / (Math.sqrt(2 * Math.PI * Math.pow(stdDev, 2)))) * 
                 Math.pow(Math.E, -((Math.pow(x, 2)) / (2 * Math.pow(stdDev, 2))));
     }
@@ -105,7 +83,7 @@ public class ImageManipulation {
      * @param kernel the kernel that is convoluted over the image; different kernels
      * produce different effects (i.e. gaussian blur, sharpen, etc.)
      */
-    public static void convolute(double[][] kernel)
+    public static void convolute2D(double[][] kernel)
     {
         for(int i = (int) Math.floor(kernel.length / 2); i < width - (int) Math.floor(kernel.length / 2); i++) {
             for(int j = (int) Math.floor(kernel[0].length / 2); j < height - (int) Math.floor(kernel[0].length / 2); j++) {
@@ -125,8 +103,15 @@ public class ImageManipulation {
         }
     }
     
+    /**
+     * Convolutes a 1D kernel on an image
+     * 
+     * @param kernel  the 1D kernel that is convoluted over the image; different
+     * kernels produce different effects (i.e. gaussian blur, sharpen, etc.)
+     */
     public static void convolute1D(double[] kernel)
     {
+        // convolute the kernel horizontally
         for(int i = (int) Math.floor(kernel.length / 2); i < width - (int) Math.floor(kernel.length / 2); i++) {
             for(int j = 0; j < height; j++) {
                 int rAccum = 0;
@@ -142,6 +127,7 @@ public class ImageManipulation {
             }            
         }
         
+        // convolute the kernel vertically
         for(int j = (int) Math.floor(kernel.length / 2); j < height - (int) Math.floor(kernel.length / 2); j++) {
             for(int i = 0; i < width; i++) {
                 int rAccum = 0;
