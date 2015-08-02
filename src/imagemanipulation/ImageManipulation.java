@@ -20,7 +20,7 @@ public class ImageManipulation {
     static BufferedImage postImg = null;
     static int width;
     static int height;
-    static double kernel[][];
+    static double kernel[];
     
     //helper objects
     static Scanner kb = new Scanner(System.in);
@@ -39,9 +39,9 @@ public class ImageManipulation {
             postImg = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
         } catch (IOException e) {
         }
-        kernel = generateGaussianKernel(0.84089642, 10);
+        kernel = generate1DGaussianKernel(0.84089642, 10);
         long startTime = System.currentTimeMillis();
-        convolute(kernel);
+        convolute1D(kernel);
         long endTime = System.currentTimeMillis();
         double elapsedTime = (endTime - startTime) / 1000;
         System.out.println("Elapsed time: " + elapsedTime);
@@ -69,6 +69,16 @@ public class ImageManipulation {
         return kernel;
     }
     
+    public static double[] generate1DGaussianKernel(double stdDev, int radius) {
+        double[] kernel = new double[(2 * radius) + 1];
+        int origin = (int) (kernel.length / 2.0);
+        for(int i = 0; i < kernel.length; i++) {
+            int x = Math.abs(i - origin);
+            kernel[i] = gaussian1D(x, stdDev);
+        }
+        return kernel;
+    }
+    
     /**
      * Calculates the Gaussian filter kernel value at a specific pixel
      * based on the pixel's position and the Gaussian function's
@@ -82,6 +92,11 @@ public class ImageManipulation {
     private static double gaussian(int x, int y, double stdDev) {
         return (1 / (2 * Math.PI * Math.pow(stdDev, 2))) * 
                 Math.pow(Math.E, -((Math.pow(x, 2) + Math.pow(y, 2)) / (2 * Math.pow(stdDev, 2))));
+    }
+    
+    private static double gaussian1D(int x, double stdDev) {
+        return (1 / (Math.sqrt(2 * Math.PI * Math.pow(stdDev, 2)))) * 
+                Math.pow(Math.E, -((Math.pow(x, 2)) / (2 * Math.pow(stdDev, 2))));
     }
     
     /**
@@ -107,6 +122,39 @@ public class ImageManipulation {
                 }
                 postImg.setRGB(i, j, toRGB(rAccum, gAccum, bAccum));
             }
+        }
+    }
+    
+    public static void convolute1D(double[] kernel)
+    {
+        for(int i = (int) Math.floor(kernel.length / 2); i < width - (int) Math.floor(kernel.length / 2); i++) {
+            for(int j = 0; j < height; j++) {
+                int rAccum = 0;
+                int gAccum = 0;
+                int bAccum = 0;
+                for(int x = -(int) Math.floor(kernel.length / 2); x < (int) Math.floor(kernel.length / 2); x++) {
+                    Color color = new Color(img.getRGB(i + x, j));
+                    rAccum += kernel[x + (int) Math.floor(kernel.length / 2)] * color.getRed();
+                    gAccum += kernel[x + (int) Math.floor(kernel.length / 2)] * color.getGreen();
+                    bAccum += kernel[x + (int) Math.floor(kernel.length / 2)] * color.getBlue();
+                }
+                postImg.setRGB(i, j, toRGB(rAccum, gAccum, bAccum));
+            }            
+        }
+        
+        for(int j = (int) Math.floor(kernel.length / 2); j < height - (int) Math.floor(kernel.length / 2); j++) {
+            for(int i = 0; i < width; i++) {
+                int rAccum = 0;
+                int gAccum = 0;
+                int bAccum = 0;
+                for(int y = -(int) Math.floor(kernel.length / 2); y < (int) Math.floor(kernel.length / 2); y++) {
+                    Color color = new Color(img.getRGB(i, j + y));
+                    rAccum += kernel[y + (int) Math.floor(kernel.length / 2)] * color.getRed();
+                    gAccum += kernel[y + (int) Math.floor(kernel.length / 2)] * color.getGreen();
+                    bAccum += kernel[y + (int) Math.floor(kernel.length / 2)] * color.getBlue();
+                }
+                postImg.setRGB(i, j, toRGB(rAccum, gAccum, bAccum));
+            }            
         }
     }
     
