@@ -39,7 +39,7 @@ public class ImageManipulation {
             postImg = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
         } catch (IOException e) {
         }
-        kernel = generate1DGaussianKernel(3, 40);
+        kernel = generate1DGaussianKernel(2);
         long startTime = System.currentTimeMillis();
         convolute1D(kernel);
         long endTime = System.currentTimeMillis();
@@ -69,8 +69,8 @@ public class ImageManipulation {
         return kernel;
     }
     
-    public static double[] generate1DGaussianKernel(double stdDev, int radius) {
-        double[] kernel = new double[(2 * radius) + 1];
+    public static double[] generate1DGaussianKernel(double stdDev) {
+        double[] kernel = new double[(int) Math.ceil(6 * stdDev)];
         int origin = (int) (kernel.length / 2.0);
         for(int i = 0; i < kernel.length; i++) {
             int x = Math.abs(i - origin);
